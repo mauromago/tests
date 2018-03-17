@@ -6,8 +6,8 @@
 #define SLEEP_DELAY_IN_SECONDS  1800
 #define Cicli 100
 #define Cicli2 10
-const char* ssid = "TP-LINK_84FD84";
-const char* password = "49899405";
+const char* ssid = "";
+const char* password = "";
 char strValore[6];
 const char* mqtt_server = "192.168.1.131";
 const char* mqtt_username = "";
@@ -64,55 +64,32 @@ void reconnect() {
 
 void setup()
 {  
-  //setup_wifi();
-  //client.setServer(mqtt_server, 1883);
-  //client.setCallback(callback);
   Serial.begin(115200);
   emon1.current(A0, 11.1);             // Current: input pin, calibration.
-  //ESP.wdtDisable();
 }
 
 void loop()
 {
-  //if (!client.connected()) {
-  //  reconnect();
-  //}
   client.loop();
   for (int i=0;i<Cicli2;i++){
     for (int i=0;i<Cicli;i++){
-    //Cont=i;
     Irms = emon1.calcIrms(1480);  // Calculate Irms only
-    //Serial.print (Imrs);
-    //Serial.print (" ");
     IrmsSum = IrmsSum + Irms;
-    //Serial.println (IrmsSum);
-    //Serial.println ("--");
     delay(0);
     }  
   IrmsMed = IrmsMed + IrmsSum;
   IrmsSum = 0;
-  Serial.println (millis()); 
-  //Serial.println (IrmsSum);
-  Serial.println (IrmsMed); 
-  Serial.println ("  ");
   }  
   Irms = IrmsMed/(Cicli*Cicli2);
-  Serial.println ("ccccccccccc");
-  Serial.println (Irms);
-  Serial.println ("ccccccccccc");
   IrmsMed = 0;
-  //Cont = 0;
   Serial.println (Irms);
   dtostrf(Irms, 2, 2, strValore);
-  Serial.println ("iiiiiiiiiiiiii");
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
   if (!client.connected()) {
-    reconnect(); }
-   Serial.println ("kkkkkkkkkkkkk");  
+  reconnect(); }
   client.publish(mqtt_topic, strValore);
-  Serial.println ("-------------------");
   client.disconnect();
   WiFi.disconnect();
   delay(100);
