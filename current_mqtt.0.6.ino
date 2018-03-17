@@ -6,9 +6,9 @@
 #define SLEEP_DELAY_IN_SECONDS  1800
 #define Cicli 100
 #define Cicli2 10
-const char* ssid = "BASE";
+const char* ssid = "";
 const char* password = "";
-char strValore[6];
+char strValore[5];
 const char* mqtt_server = "192.168.1.131";
 const char* mqtt_username = "";
 const char* mqtt_password = "";
@@ -41,19 +41,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void reconnect() {
   while (!client.connected()) {
     if (client.connect("ESP8266Client", mqtt_username, mqtt_password)) {
-    } //else {
-    //Serial.print("not connected");}
+    } 
   }
 }
 
-void setup()
-{  
-  //setup_wifi();
-  //client.setServer(mqtt_server, 1883);
-  //client.setCallback(callback);
-  //Serial.begin(115200);
+void setup() {  
   emon1.current(A0, 22);             // Current: input pin, calibration.
-  //ESP.wdtDisable();
 }
 
 void loop()
@@ -61,39 +54,25 @@ void loop()
   client.loop();
   for (int i=0;i<Cicli2;i++){
     for (int i=0;i<Cicli;i++){
-    //Cont=i;
     Irms = emon1.calcIrms(1480);  // Calculate Irms only
-    //Serial.print (Imrs);
-    //Serial.print (" ");
     IrmsSum = IrmsSum + Irms;
-    //Serial.println (IrmsSum);
-    //Serial.println ("--");
     delay(0);
     }  
   IrmsMed = IrmsMed + IrmsSum;
   IrmsSum = 0;
-  //Serial.println (millis()); 
-  //Serial.println (IrmsSum);
   Serial.println (IrmsMed); 
   Serial.println ("  ");
   }  
   Irms = IrmsMed/(Cicli*Cicli2);
-  //Serial.println ("ccccccccccc");
-  Serial.println (Irms);
-  //Serial.println ("ccccccccccc");
   IrmsMed = 0;
-  //Cont = 0;
   Serial.println (Irms);
   dtostrf(Irms, 2, 2, strValore);
-  //Serial.println ("iiiiiiiiiiiiii");
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
   if (!client.connected()) {
    reconnect(); }
-   Serial.println ("kkkkkkkkkkkkk");  
   client.publish(mqtt_topic, strValore);
-  Serial.println ("-------------------");
   client.disconnect();
   WiFi.disconnect();
   delay(100);
